@@ -11,6 +11,7 @@ cover_db
 nytprof*
 /inc/
 README
-/fatlib
 /bcssh
 /App-bcssh-*
+/MANIFEST.SKIP
+/Distar

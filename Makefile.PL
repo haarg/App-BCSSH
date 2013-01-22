@@ -1,12 +1,20 @@
 use strict;
+use warnings FATAL => 'all';
 use ExtUtils::MakeMaker;
 
-WriteMakefile(
-  NAME => 'App-bcssh',
-  VERSION_FROM => 'lib/App/bcssh.pm',
-  PREREQ_PM => {
-    'Moo' => 0,
-  },
-  LICENSE => 'perl',
-);
+(do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
+WriteMakefile(
+  NAME => 'App::BCSSH',
+  VERSION_FROM => 'lib/App/BCSSH.pm',
+
+  EXE_FILES => [
+    'bin/bcssh',
+  ],
+
+  META_MERGE => {
+    requires => {
+        perl => '5.8',
+    },
+  },
+);
