@@ -1,12 +1,12 @@
-package App::bcssh::command::ping;
+package App::BCSSH::Command::ping;
 use strict;
 use warnings;
-use App::bcssh::client;
+use App::BCSSH::Client;
 
 sub run {
     my $class = shift;
     my $agent = $ENV{SSH_AUTH_SOCK} or return;
-    return App::bcssh::client::ping($agent);
+    return App::BCSSH::Client::ping($agent);
 }
 
 1;

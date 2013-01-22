@@ -1,10 +1,10 @@
-package App::bcssh::command::vi;
+package App::BCSSH::Command::vi;
 use strict;
 use warnings;
 
 use Cwd;
-use App::bcssh::client;
-use App::bcssh::message;
+use App::BCSSH::Client;
+use App::BCSSH::Message;
 
 sub run {
     my $class = shift;
@@ -12,7 +12,7 @@ sub run {
     my ($file) = @_;
     $file or die "file required\n";
     my $full_file = Cwd::abs_path($file);
-    my ($type) = App::bcssh::client::send($agent, BCSSH_EDIT, $full_file);
+    my ($type) = App::BCSSH::Client::send($agent, BCSSH_EDIT, $full_file);
     return $type == BCSSH_SUCCESS;
 }
 

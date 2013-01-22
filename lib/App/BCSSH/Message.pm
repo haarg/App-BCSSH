@@ -1,4 +1,4 @@
-package App::bcssh::message;
+package App::BCSSH::Message;
 use strict;
 use warnings;
 

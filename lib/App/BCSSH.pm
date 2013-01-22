@@ -1,4 +1,4 @@
-package App::bcssh;
+package App::BCSSH;
 use strict;
 use warnings;
 our $VERSION = '0.00100';
@@ -11,8 +11,8 @@ sub run {
     if (my $sub = $class->can("command_$command")) {
         exit ($class->$sub(@args) ? 0 : 1);
     }
-    elsif (eval { require "App/bcssh/command/$command.pm" }) {
-        my $pack = "App::bcssh::command::$command";
+    elsif (eval { require "App/BCSSH/Command/$command.pm" }) {
+        my $pack = "App::BCSSH::Command::$command";
         exit ($pack->run(@args) ? 0 : 1);
     }
     elsif ($@ =~ /^Can't locate .+? in \@INC/) {

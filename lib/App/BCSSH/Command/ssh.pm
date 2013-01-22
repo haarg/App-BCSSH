@@ -1,11 +1,11 @@
-package App::bcssh::command::ssh;
+package App::BCSSH::Command::ssh;
 use strict;
 use warnings;
 
 use POSIX ":sys_wait_h";
-use App::bcssh::message;
-use App::bcssh::proxy;
-use App::bcssh::client;
+use App::BCSSH::Message;
+use App::BCSSH::Proxy;
+use App::BCSSH::Client;
 
 sub new {
     my $class = shift;
@@ -24,7 +24,7 @@ sub run {
     if ($self->is_bcssh_agent($agent_path)) {
         die "not supported";
     }
-    my $proxy = App::bcssh::proxy->new(
+    my $proxy = App::BCSSH::Proxy->new(
         agent_path => $agent_path,
         handlers => {
             (BCSSH_QUERY) => sub {
@@ -93,7 +93,7 @@ sub find_host {
 
 sub is_bcssh_agent {
     my $self = shift;
-    return App::bcssh::client::ping(@_);
+    return App::BCSSH::Client::ping(@_);
 }
 
 1;

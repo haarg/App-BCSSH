@@ -1,2 +1,2 @@
-use App::bcssh ();
-App::bcssh->run(@ARGV);
+use App::BCSSH ();
+App::BCSSH->run(@ARGV);

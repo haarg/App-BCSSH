@@ -1,8 +1,8 @@
-package App::bcssh::client;
+package App::BCSSH::Client;
 use strict;
 use warnings;
 
-use App::bcssh::message;
+use App::BCSSH::Message;
 use IO::Socket::UNIX;
 
 sub send {
@@ -36,7 +36,7 @@ sub read_message {
 
 sub ping {
     my $agent = shift;
-    my ($type) = App::bcssh::client::send($agent, BCSSH_QUERY);
+    my ($type) = App::BCSSH::Client::send($agent, BCSSH_QUERY);
     return $type == BCSSH_SUCCESS;
 }
 

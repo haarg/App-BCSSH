@@ -1,9 +1,9 @@
-package App::bcssh::proxy;
+package App::BCSSH::Proxy;
 use Moo;
 use File::Temp ();
 use IO::Select;
 use IO::Socket::UNIX;
-use App::bcssh::message;
+use App::BCSSH::Message;
 
 has agent_path  => (is => 'ro');
 has handlers    => (is => 'ro', default => sub { { } } );
