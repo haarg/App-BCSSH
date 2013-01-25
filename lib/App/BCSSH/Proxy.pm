@@ -4,6 +4,7 @@ use File::Temp ();
 use IO::Select;
 use IO::Socket::UNIX;
 use App::BCSSH::Message;
+use Try::Tiny;
 
 has agent_path  => (is => 'ro');
 has handlers    => (is => 'ro', default => sub { { } } );
@@ -83,7 +84,12 @@ sub read_message {
                 my $response = make_response($type, \@message);
                 $socket->syswrite($response);
             };
-            $handler->($send, @message);
+            try {
+                $handler->($send, @message);
+            }
+            catch {
+                $socket->syswrite(make_response(SSH_AGENT_FAILURE));
+            };
         }
         elsif (my $remote = $client->{remote}) {
             $remote->syswrite(make_response($type, $message));
