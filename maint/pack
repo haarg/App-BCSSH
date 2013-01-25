@@ -8,6 +8,9 @@ use File::Basename;
 use Module::CoreList;
 use autodie qw(:all);
 
+my ($in_file) = @ARGV;
+$in_file && -f $in_file or die "Input file must be specified!";
+
 $ENV{PERL_STRICTURES_EXTRA} = 0;
 my ($exclude) = map { qr{$_} } join '|', qw(
     ^Sub::Name$
@@ -25,7 +28,7 @@ find({no_chdir => 1, wanted => sub {
 
 {
     local $ENV{PERL5LIB} = "lib:" . ($ENV{PERL5LIB}||'');
-    system 'fatpack', 'trace', (map { "--use=$_" } @modules), 'bin/bcssh';
+    system 'fatpack', 'trace', (map { "--use=$_" } @modules), $in_file;
 }
 my @trace = do {
     open my $fh, '<', 'fatpacker.trace';
@@ -60,18 +63,15 @@ sub _fatpacker::modules {
 END_HACK
 $content =~ s{(my \%fatpacked;)}{$1\n$pack_hack};
 my $script = do {
-    open my $fh, '<', 'bin/bcssh';
+    open my $fh, '<', $in_file;
     local $/;
     <$fh>
 };
 $script =~ s/^#!.*\n//;
 $content .= $script;
 
-open my $fh, '>', 'bcssh';
-print { $fh } $content;
-close $fh;
-chmod 0777 & ~umask, 'bcssh';
-print "wrote bcssh\n";
-
 rmtree('fatlib');
 unlink 'fatpacker.trace';
+
+print $content;
+
