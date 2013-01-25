@@ -2,23 +2,65 @@ package App::BCSSH;
 use strict;
 use warnings;
 our $VERSION = '0.00100';
+$VERSION = eval $VERSION;
+
+use Try::Tiny;
+use Module::Runtime qw(use_module);
+use Module::Find ();
+
+sub run_script { exit($_[0]->new->run(@ARGV) ? 0 : 1) }
+sub new { bless {}, $_[0] }
 
 sub run {
-    my $class = shift;
+    my $self = shift;
     my @args = @_;
-    my $command = shift @args or die "no command given";
-    $command =~ /^[a-z]+$/ or die "bad command $command\n";
-    if (my $sub = $class->can("command_$command")) {
-        exit ($class->$sub(@args) ? 0 : 1);
-    }
-    elsif (eval { require "App/BCSSH/Command/$command.pm" }) {
+    my $command = shift @args
+        or die "Command required.\n" . $self->_commands_msg;
+    $command =~ /^[a-z](?:-[a-z]+)*+$/
+        or $self->invalid_command($command);
+    return try {
         my $pack = "App::BCSSH::Command::$command";
-        exit ($pack->run(@args) ? 0 : 1);
+        $pack =~ s/-/::/g;
+        return use_module($pack)->new->run(@args);
     }
-    elsif ($@ =~ /^Can't locate .+? in \@INC/) {
-        die "can't find command $command\n";
+    catch {
+        if (/Can't locate .+? in \@INC/) {
+            $self->invalid_command($command);
+        }
+        else {
+            die $_;
+        }
+    };
+}
+
+sub invalid_command {
+    my $self = shift;
+    my $command = shift;
+    die "Invalid command $command!\n" . $self->_commands_msg;
+}
+
+sub _commands_msg {
+    return "Available commands:\n" . (join '', map { "\t$_\n" } $_[0]->commands);
+}
+
+sub commands {
+    my $self = shift;
+    my $command_ns = 'App::BCSSH::Command';
+    my @mods = _find_mods($command_ns);
+    for (@mods) {
+        s/^$command_ns\:://;
+        s/::/-/g;
     }
-    die $@;
+    return sort @mods;
+}
+
+sub _find_mods {
+    my $ns = shift;
+    my @mods = Module::Find::findallmod($ns);
+    if (defined &_fatpacker::modules) {
+        push @mods, grep { /^$ns\::/ } _fatpacker::modules();
+    }
+    return @mods;
 }
 
 1;

@@ -1,2 +1,3 @@
-use App::BCSSH ();
-App::BCSSH->run(@ARGV);
+#!/usr/bin/env perl
+use App::BCSSH;
+App::BCSSH->run_script;
