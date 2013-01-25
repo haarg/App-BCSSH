@@ -3,9 +3,11 @@ use strict;
 use warnings;
 use App::BCSSH::Client;
 
+sub new { bless { agent => $ENV{SSH_AUTH_SOCK} }, $_[0] }
+
 sub run {
-    my $class = shift;
-    my $agent = $ENV{SSH_AUTH_SOCK} or return;
+    my $self = shift;
+    my $agent = $self->{agent} or return;
     return App::BCSSH::Client::ping($agent);
 }
 
