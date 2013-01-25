@@ -35,15 +35,21 @@ sub _build_server_socket {
 has _clients => (is => 'ro', default => sub { { } });
 
 sub proxy {
-    my $self = shift;
+    my ($self, $parent_fh) = @_;
     my $done;
     local $SIG{$_} = sub { $done = 1 } for qw(HUP INT TERM QUIT);
+    my $select = $self->_select;
+    $select->add($parent_fh)
+        if $parent_fh;
 
     my $server = $self->server_socket;
     my $clients = $self->_clients;
     until ($done) {
-        for my $socket ($self->_select->can_read) {
-            if ($socket == $server) {
+        for my $socket ($select->can_read) {
+            if ($parent_fh && $socket == $parent_fh) {
+                $done = 1;
+            }
+            elsif ($socket == $server) {
                 $self->new_client($socket);
             }
             elsif ($socket->sysread(my $buf, 4096)) {
@@ -57,6 +63,8 @@ sub proxy {
     for my $client (values %$clients) {
         $self->close_client($client->{client});
     }
+    $select->remove($parent_fh)
+        if $parent_fh;
 }
 
 sub read_message {
