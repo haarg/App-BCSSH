@@ -1,7 +1,6 @@
 package App::BCSSH::Command::ssh;
 use Moo;
 use Sub::Quote;
-use POSIX ":sys_wait_h";
 use App::BCSSH::Message;
 use App::BCSSH::Proxy;
 use App::BCSSH::Client;
@@ -28,17 +27,11 @@ sub run {
     my $args = $self->args;
     my $host = $self->host;
     if (! $host) {
-        warn "Can't calculate hostname. Disabling.\n";
-        exec 'ssh', @$args;
-    }
-    my $agent_path = $self->agent_path;
-    if ($agent_path && $self->is_bcssh_agent($agent_path)) {
-        warn "Not able to re-proxy to bcssh. Disabling.\n";
         exec 'ssh', @$args;
     }
     my $proxy = $self->proxy;
     $ENV{SSH_AUTH_SOCK} = $proxy->socket_path;
-    if ($self->auth) {
+    if ($host && $self->auth) {
         $ENV{LC_BCSSH_AUTH} = $self->auth_key;
     }
     my $guard = $self->proxy_guard;
@@ -48,11 +41,15 @@ sub run {
 sub _build_proxy {
     my $self = shift;
     my $host = $self->host;
+    my $agent_path = $self->agent_path;
+    if ($self->is_bcssh_agent($agent_path)) {
+        undef $host;
+    }
     my $gvim = $self->gvim;
     my $auth_key = $self->auth && $self->auth_key;
     my $check_key = $auth_key ? sub { die if $_[0] ne $auth_key } : sub () {};
     return App::BCSSH::Proxy->new(
-        agent_path => $self->agent_path,
+        agent_path => $agent_path,
         handlers => {
             $host ? (
                 (BCSSH_QUERY) => sub {
@@ -80,6 +77,7 @@ sub _build_proxy {
 sub proxy_guard {
     my ($self, $child_cb) = @_;
     my $proxy = $self->proxy;
+
     my $child = open my $fh, '|-';
     if (!$child) {
         chdir '/';
