@@ -32,17 +32,16 @@ constant->import(\%constants);
 
 sub make_response {
     my $type = shift;
-    my $message = @_ ? (
-        ref $_[0] ? join_message(@{ $_[0] }) : $_[0]
-    ) : '';
+    my $message = join_message(@_);
     my $full_message = pack('c', $type) . $message;
     return pack('N', length $full_message) . $full_message;
 }
 
 sub split_message {
     my $message = shift;
-    my @parts = split /\|/, $message;
-    return (@parts);
+    my @parts = split /(?<!\\)\|/, $message;
+    s/\\(.)/$1/g for @parts;
+    return @parts;
 }
 
 sub join_message {
