@@ -9,13 +9,13 @@ use App::BCSSH::Client;
 
 sub new {
     my $class = shift;
-    my $self = bless {}, $class;
+    my $self = bless { args => [@_] } $class;
     return $self;
 }
 
 sub run {
-    my $self = ref $_[0] ? shift : shift->new;
-    my $args = [@_];
+    my $self = shift;
+    my $args = $self->{args};
     my $agent_path = $ENV{SSH_AUTH_SOCK};
     my $host = $self->find_host($args);
     if (! $host) {
