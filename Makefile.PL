@@ -12,6 +12,13 @@ WriteMakefile(
     'bin/bcssh',
   ],
 
+  PREREQ_PM => {
+    'Moo' => 0,
+    'Package::Variant' => 0,
+    'Module::Runtime' => 0,
+    'Try::Tiny' => 0,
+  },
+
   META_MERGE => {
     requires => {
         perl => '5.8',
