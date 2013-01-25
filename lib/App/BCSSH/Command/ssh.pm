@@ -1,21 +1,19 @@
 package App::BCSSH::Command::ssh;
-use strict;
-use warnings;
+use Moo;
 
 use POSIX ":sys_wait_h";
 use App::BCSSH::Message;
 use App::BCSSH::Proxy;
 use App::BCSSH::Client;
+use App::BCSSH::Options;
 
-sub new {
-    my $class = shift;
-    my $self = bless { args => [@_] } $class;
-    return $self;
-}
+with Options(
+    -config => {permute => 0},
+);
 
 sub run {
     my $self = shift;
-    my $args = $self->{args};
+    my $args = $self->args;
     my $agent_path = $ENV{SSH_AUTH_SOCK};
     my $host = $self->find_host($args);
     if (! $host) {
