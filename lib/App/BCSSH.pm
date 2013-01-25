@@ -5,7 +5,7 @@ our $VERSION = '0.00100';
 $VERSION = eval $VERSION;
 
 use Try::Tiny;
-use Module::Runtime qw(use_module);
+use Module::Runtime qw(require_module);
 use Module::Find ();
 
 sub run_script { exit($_[0]->new->run(@ARGV) ? 0 : 1) }
@@ -16,12 +16,13 @@ sub run {
     my @args = @_;
     my $command = shift @args
         or die "Command required.\n" . $self->_commands_msg;
-    $command =~ /^[a-z](?:-[a-z]+)*+$/
+    $command =~ /^[a-z]+(?:-[a-z]+)*+$/
         or $self->invalid_command($command);
     return try {
         my $pack = "App::BCSSH::Command::$command";
         $pack =~ s/-/::/g;
-        return use_module($pack)->new->run(@args);
+        require_module($pack);
+        return($pack->can('new') ? $pack->new(@args)->run : $pack->run(@args));
     }
     catch {
         if (/Can't locate .+? in \@INC/) {
