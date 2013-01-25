@@ -47,10 +47,24 @@ system 'fatpack', 'tree', @packlists;
 
 my $content = "#!/usr/bin/env perl\n";
 $content .= `fatpack file`;
-$content .= do {
+my $pack_hack = <<'END_HACK';
+sub _fatpacker::modules {
+    my @mods = sort keys %fatpacked;
+    for (@mods) {
+        s/\.pm$//;
+        s{/}{::}g;
+    }
+    return @mods;
+}
+END_HACK
+$content =~ s{(my \%fatpacked;)}{$1\n$pack_hack};
+my $script = do {
     open my $fh, '<', 'bin/bcssh';
+    local $/;
     <$fh>
 };
+$script =~ s/^#!.*\n//;
+$content .= $script;
 
 open my $fh, '>', 'bcssh';
 print { $fh } $content;
