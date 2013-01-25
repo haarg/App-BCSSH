@@ -8,6 +8,7 @@ use File::Basename;
 use Module::CoreList;
 use autodie qw(:all);
 
+$ENV{PERL_STRICTURES_EXTRA} = 0;
 my ($exclude) = map { qr{$_} } join '|', qw(
     ^Sub::Name$
     ^Class::XSAccessor
