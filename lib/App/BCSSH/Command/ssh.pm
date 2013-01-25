@@ -35,6 +35,7 @@ sub run {
         $ENV{LC_BCSSH_AUTH} = $self->auth_key;
     }
     my $guard = $self->proxy_guard;
+    # ssh closes all extra file descriptors, or this could use exec with a non-close-on-exec fd
     exit system('ssh', @$args);
 }
 
