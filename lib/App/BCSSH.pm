@@ -115,6 +115,14 @@ the need to overload TERM.
 
 This is all probably a terrible idea.
 
+=head1 SEE ALSO
+
+=over 8
+
+=item L<App::BCVI> - The inspiration for this concept
+
+=back
+
 =head1 AUTHOR
 
 haarg - Graham Knop (cpan:HAARG) <haarg@haarg.org>
