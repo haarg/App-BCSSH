@@ -5,6 +5,7 @@ use App::BCSSH::Message;
 use App::BCSSH::Proxy;
 use App::BCSSH::Client;
 use App::BCSSH::Options;
+use constant DEBUG => $ENV{BCSSH_DEBUG};
 
 with Options(
     -config => {permute => 0},
@@ -83,9 +84,11 @@ sub proxy_guard {
     if (!$child) {
         chdir '/';
         $0 = 'bcssh proxy';
-        open STDOUT, '>', '/dev/null';
-        open STDERR, '>', '/dev/null';
-        $proxy->(\*STDIN);
+        unless (DEBUG) {
+            open STDOUT, '>', '/dev/null';
+            open STDERR, '>', '/dev/null';
+        }
+        $proxy->proxy(\*STDIN);
         exit;
     }
     return $fh;
