@@ -5,6 +5,7 @@ use App::BCSSH::Message;
 use App::BCSSH::Proxy;
 use App::BCSSH::Client;
 use App::BCSSH::Options;
+use App::BCSSH::Util qw(find_mods);
 use constant DEBUG => $ENV{BCSSH_DEBUG};
 
 with Options(
@@ -14,7 +15,6 @@ with Options(
 
 has agent_path => ( is => 'ro', default => quote_sub q[ $ENV{SSH_AUTH_SOCK} ] );
 has host => ( is => 'ro', lazy => 1, default => quote_sub q{ $_[0]->find_host($_[0]->args) } );
-has gvim => ( is => 'ro', default => quote_sub q{ 'gvim' });
 has auth => ( is => 'ro' );
 has auth_key => (
     is => 'ro',
@@ -22,6 +22,7 @@ has auth_key => (
     default => quote_sub q[ join '', map { chr(32+int(rand(96))) } (1..20) ],
 );
 has proxy => ( is => 'lazy' );
+has handlers => ( is => 'lazy' );
 
 sub run {
     my $self = shift;
@@ -40,39 +41,50 @@ sub run {
     exit system('ssh', @$args);
 }
 
-sub _build_proxy {
+sub _build_handlers {
     my $self = shift;
+    require App::BCSSH::Proxy::Handler;
+    find_mods('App::BCSSH::Proxy::Handler', 1);
+
     my $host = $self->host;
-    my $agent_path = $self->agent_path;
-    if ($self->is_bcssh_agent($agent_path)) {
+
+    if ( !$host || $self->is_bcssh_agent($self->agent_path) ) {
+        my $fail = sub { $_[0]->(SSH_AGENT_FAILURE) };
+        return {
+            map { $_->message_type => $fail } App::BCSSH::Proxy::Handler->handlers;
+        };
         undef $host;
     }
-    my $gvim = $self->gvim;
+
     my $auth_key = $self->auth && $self->auth_key;
-    my $check_key = $auth_key ? sub { die if $_[0] ne $auth_key } : sub () {};
+    my %handlers;
+
+    for my $handmod ( App::BCSSH::Proxy::Handler->handlers ) {
+        my $handler = $handmod->new(host => $self->host);
+        my %captures = (
+            '$handler' => \$handler,
+            $auth_key ? ( '$auth_key' => \$auth_key ) : (),
+        );
+        my $code = ($auth_key ? 'die if $auth_key ne ' : '') . q{splice @_, 1, 1;};
+        if (my $inline = quoted_from_sub($handler->can('handle'))) {
+            %captures = ( %captures, %{ $inline->[2] } )
+                if $inline->[2];
+            $code .= q{unshift @_, $handler;} . $inline->[1];
+        }
+        else {
+            $code .= q{$handler->handle(@_);};
+        }
+        $handlers{$handler->message_type}
+            = quote_sub($code, \%captures, { no_install => 1 });
+    }
+    return \%handlers;
+}
+
+sub _build_proxy {
+    my $self = shift;
     return App::BCSSH::Proxy->new(
-        agent_path => $agent_path,
-        handlers => {
-            $host ? (
-                (BCSSH_QUERY) => sub {
-                    my ($send, $key) = @_;
-                    $check_key->($key);
-                    $send->(BCSSH_SUCCESS);
-                },
-                (BCSSH_EDIT) => sub {
-                    my ($send, $key, $file) = @_;
-                    $check_key->($key);
-                    my $file_path = "scp://$host/$file";
-                    fork or exec $gvim, '--', $file_path;
-                    $send->(BCSSH_SUCCESS);
-                },
-            ) : (
-                map { $_ => sub { $_[0]->(SSH_AGENT_FAILURE) } } (
-                    BCSSH_QUERY,
-                    BCSSH_EDIT,
-                ),
-            ),
-        },
+        agent_path => $self->agent_path,
+        handlers => $self->handlers,
     );
 }
 
