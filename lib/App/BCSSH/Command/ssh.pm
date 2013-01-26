@@ -9,13 +9,12 @@ use App::BCSSH::Util qw(find_mods);
 use constant DEBUG => $ENV{BCSSH_DEBUG};
 
 with Options(
-    -config => {permute => 0},
-    auth => 'auth!',
+    permute => 0,
 );
 
 has agent_path => ( is => 'ro', default => quote_sub q[ $ENV{SSH_AUTH_SOCK} ] );
 has host => ( is => 'ro', lazy => 1, default => quote_sub q{ $_[0]->find_host($_[0]->args) } );
-has auth => ( is => 'ro' );
+has auth => ( is => 'ro', arg_spec => 'auth!' );
 has auth_key => (
     is => 'ro',
     lazy => 1,
