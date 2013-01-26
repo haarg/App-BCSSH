@@ -50,9 +50,8 @@ sub _build_handlers {
     if ( !$host || $self->is_bcssh_agent($self->agent_path) ) {
         my $fail = sub { $_[0]->(SSH_AGENT_FAILURE) };
         return {
-            map { $_->message_type => $fail } App::BCSSH::Proxy::Handler->handlers;
+            map { $_->message_type => $fail } App::BCSSH::Proxy::Handler->handlers
         };
-        undef $host;
     }
 
     my $auth_key = $self->auth && $self->auth_key;
