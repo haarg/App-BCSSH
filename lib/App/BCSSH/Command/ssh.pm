@@ -3,7 +3,6 @@ use Moo;
 use Sub::Quote;
 use App::BCSSH::Message;
 use App::BCSSH::Proxy;
-use App::BCSSH::Client;
 use App::BCSSH::Options;
 use App::BCSSH::Util qw(find_mods);
 use constant DEBUG => $ENV{BCSSH_DEBUG};
@@ -143,7 +142,7 @@ sub find_host {
 
 sub is_bcssh_agent {
     my $self = shift;
-    return App::BCSSH::Client::ping(@_);
+    return App::BCSSH::Message::ping(@_);
 }
 
 1;

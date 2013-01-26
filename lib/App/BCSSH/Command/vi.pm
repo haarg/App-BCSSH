@@ -3,7 +3,6 @@ use strict;
 use warnings;
 
 use Cwd;
-use App::BCSSH::Client;
 use App::BCSSH::Message;
 
 sub run {
@@ -15,7 +14,7 @@ sub run {
     for my $file (@files) {
         $file = File::Spec->rel2abs($file);
     }
-    my ($type) = App::BCSSH::Client::send($agent, BCSSH_EDIT, $auth_key, @files);
+    my ($type) = App::BCSSH::Message::send_message($agent, BCSSH_EDIT, $auth_key, @files);
     return $type && $type == BCSSH_SUCCESS;
 }
 
