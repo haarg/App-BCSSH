@@ -8,12 +8,13 @@ use Try::Tiny;
 use Module::Runtime qw(require_module);
 use Module::Find ();
 
-sub run_script { exit($_[0]->new->run(@ARGV) ? 0 : 1) }
-sub new { bless {}, $_[0] }
+sub run_script { exit($_[0]->new(@ARGV)->run ? 0 : 1) }
+
+sub new { bless { args => [@_[1..$#_]] }, $_[0] }
 
 sub run {
     my $self = shift;
-    my @args = @_;
+    my @args = @{ $self->{args} };
     my $command = shift @args
         or die "Command required.\n" . $self->_commands_msg;
     $command =~ /^[a-z]+(?:-[a-z]+)*+$/
