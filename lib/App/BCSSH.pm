@@ -7,6 +7,7 @@ $VERSION = eval $VERSION;
 use Try::Tiny;
 use Module::Runtime qw(require_module);
 use Module::Find ();
+use App::BCSSH::Util qw(find_mods find_inline);
 
 sub run_script { exit($_[0]->new(@ARGV)->run ? 0 : 1) }
 
@@ -19,6 +20,7 @@ sub run {
         or die "Command required.\n" . $self->_commands_msg;
     $command =~ /^[a-z]+(?:-[a-z]+)*+$/
         or $self->invalid_command($command);
+    $self->load_plugins("$ENV{HOME}/.bcssh");
     return try {
         my $pack = "App::BCSSH::Command::$command";
         $pack =~ s/-/::/g;
@@ -48,7 +50,7 @@ sub _commands_msg {
 sub commands {
     my $self = shift;
     my $command_ns = 'App::BCSSH::Command';
-    my @mods = _find_mods($command_ns);
+    my @mods = find_mods($command_ns);
     for (@mods) {
         s/^$command_ns\:://;
         s/::/-/g;
@@ -56,13 +58,17 @@ sub commands {
     return sort @mods;
 }
 
-sub _find_mods {
-    my $ns = shift;
-    my @mods = Module::Find::findallmod($ns);
-    if (defined &_fatpacker::modules) {
-        push @mods, grep { /^$ns\::/ } _fatpacker::modules();
-    }
-    return @mods;
+sub load_plugins {
+    my $self = shift;
+    my $dir = shift;
+    return unless -d $dir;
+    require File::Find;
+    File::Find::find({ no_chdir => 1, wanted => sub {
+        return unless -f;
+        return unless /\.pm$/;
+        require $_;
+    }}, $dir);
+    find_inline(ref $self, 1);
 }
 
 1;
