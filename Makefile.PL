@@ -13,10 +13,15 @@ WriteMakefile(
   ],
 
   PREREQ_PM => {
-    'Moo' => 0,
-    'Package::Variant' => 0,
-    'Module::Runtime' => 0,
-    'Try::Tiny' => 0,
+    'Moo'               => 0,
+    'Package::Variant'  => 0,
+    'Module::Runtime'   => 0,
+    'Try::Tiny'         => 0,
+    'Module::Find'      => 0,
+    'File::Temp'        => 0,
+    'IO::Select'        => 0,
+    'IO::Socket::UNIX'  => 0,
+    'strictures'        => 0,
   },
 
   META_MERGE => {
