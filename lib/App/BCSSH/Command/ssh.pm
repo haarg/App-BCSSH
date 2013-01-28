@@ -147,3 +147,30 @@ sub is_bcssh_agent {
 
 1;
 
+__END__
+
+=head1 NAME
+
+App::BCSSH::Command::ssh - Connect to L<ssh|ssh> server with bcssh proxy running
+
+=head1 SYNOPSIS
+
+    bcssh ssh --auth my.server.com
+
+    alias ssh='bcssh ssh --auth'
+
+=head1 DESCRIPTION
+
+Connects to a server using SSH, with a BCSSH proxy running to allow sending commands back.
+
+=head1 OPTIONS
+
+=over 8
+
+=item --auth
+
+Use auth token.
+
+=back
+
+=cut
