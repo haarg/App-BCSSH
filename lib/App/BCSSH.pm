@@ -28,7 +28,7 @@ sub run {
         return($pack->can('new') ? $pack->new(@args)->run : $pack->run(@args));
     }
     catch {
-        if (/Can't locate .+? in \@INC/) {
+        if (/Can't locate .+? in \@INC/ && tr/\n// < 2 ) {
             $self->invalid_command($command);
         }
         else {
