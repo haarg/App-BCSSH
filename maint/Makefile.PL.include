@@ -13,10 +13,11 @@ manifest_include 'bin' => qr/.*/;
     *{"MY::postamble"} = sub {
         $post->() . <<'END'
 pack: bcssh
-
 bcssh: bin/bcssh $(TO_INST_PM)
 	maint/pack bin/bcssh > bcssh
 	chmod +x bcssh
+release-pack: bcssh
+	maint/update-build-branch $(VERSION) build bcssh
 END
     }
 }
