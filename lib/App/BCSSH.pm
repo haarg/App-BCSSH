@@ -7,7 +7,6 @@ $VERSION = eval $VERSION;
 use Try::Tiny;
 use Module::Runtime qw(require_module);
 use Module::Find ();
-use App::BCSSH::Util qw(find_mods);
 
 sub run_script { exit($_[0]->new(@ARGV)->run ? 0 : 1) }
 
@@ -44,18 +43,8 @@ sub invalid_command {
 }
 
 sub _commands_msg {
-    return "Available commands:\n" . (join '', map { "\t$_\n" } $_[0]->commands);
-}
-
-sub commands {
-    my $self = shift;
-    my $command_ns = 'App::BCSSH::Command';
-    my @mods = find_mods($command_ns);
-    for (@mods) {
-        s/^$command_ns\:://;
-        s/::/-/g;
-    }
-    return sort @mods;
+    require App::BCSSH::Command::commands;
+    App::BCSSH::Command::commands->new->commands_message;
 }
 
 sub load_plugins {
