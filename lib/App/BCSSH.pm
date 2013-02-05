@@ -7,7 +7,7 @@ $VERSION = eval $VERSION;
 use Try::Tiny;
 use Module::Runtime qw(require_module);
 use Module::Find ();
-use App::BCSSH::Util qw(find_mods find_inline);
+use App::BCSSH::Util qw(find_mods);
 
 sub run_script { exit($_[0]->new(@ARGV)->run ? 0 : 1) }
 
@@ -68,7 +68,6 @@ sub load_plugins {
         return unless /\.pm$/;
         require $_;
     }}, $dir);
-    find_inline(ref $self, 1);
 }
 
 1;
