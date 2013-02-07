@@ -6,6 +6,7 @@ $VERSION = eval $VERSION;
 
 use Try::Tiny;
 use Module::Runtime qw(require_module);
+use App::BCSSH::Util qw(command_to_package);
 use Module::Find ();
 
 sub run_script { exit($_[0]->new(@ARGV)->run ? 0 : 1) }
@@ -21,8 +22,7 @@ sub run {
         or $self->invalid_command($command);
     $self->load_plugins("$ENV{HOME}/.bcssh");
     return try {
-        my $pack = "App::BCSSH::Command::$command";
-        $pack =~ s/-/::/g;
+        my $pack = command_to_package($command);
         require_module($pack);
         return($pack->can('new') ? $pack->new(@args)->run : $pack->run(@args));
     }
