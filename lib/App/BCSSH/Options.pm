@@ -6,11 +6,12 @@ use Package::Variant
 ;
 use Sub::Quote;
 use Carp;
+use App::BCSSH::Options::Accessor as => 'OptAccessor';
+use MooX::CaptainHook qw(on_application);
 
 sub make_variant {
     my ($class, $target_package, %in_config) = @_;
 
-    my %arguments;
     my $error     = delete $in_config{'-error'}     || $class->default_error;
     my $arg_error = delete $in_config{'-arg_error'} || $class->default_arg_error;
 
@@ -19,20 +20,32 @@ sub make_variant {
         $config->{$opt} = $in_config{$opt}
             if exists $config->{$opt};
     }
-    my @config = (
-        'default',
-        map { (
-              $_ =~ /_pattern$/ ? "$_=$config->{$_}"
-            : $config->{$_}     ? $_
-                                : "no_$_"
-        ) } keys %$config
-    );
+
+    my %arguments;
+    on_application {
+        my $target = $_;
+        Moo::Role->apply_roles_to_object(
+            Moo->_accessor_maker_for($target),
+            OptAccessor(sub {
+                my ($into, $name, $spec) = @_;
+                $arguments{$name} = $spec;
+            }),
+        );
+    } $target_package;
+
     my $parser;
-    my $parse = sub {
-        my $args = shift;
+    install _parse => sub {
+        my ($class, $args) = @_;
         $parser ||= do {
             require Getopt::Long;
-            Getopt::Long::Parser->new(config => \@config);
+            Getopt::Long::Parser->new(config => [
+                'default',
+                map {
+                    $_ =~ /_pattern$/ ? "$_=$config->{$_}"
+                    : $config->{$_}   ? $_
+                                      : "no_$_"
+                } keys %$config
+            ]);
         };
 
         my %opts;
@@ -61,21 +74,6 @@ sub make_variant {
 
     has args => (is => 'ro', default => sub { [] });
 
-    around has => sub {
-        my ($orig, $attr, %attr_config) = @_;
-        if (my $spec = delete $attr_config{arg_spec}) {
-            my $attr_name = $attr;
-            if (exists $attr_config{init_arg}) {
-                if (!defined $attr_config{init_arg}) {
-                    croak "Can't define a arg_spec for an attribute with init_arg => undef";
-                }
-                $attr_name = $attr_config{init_arg};
-            }
-            $arguments{$attr_name} = $spec;
-        }
-        $orig->($attr, %attr_config);
-    };
-
     around BUILDARGS => sub {
         my $orig = shift;
         my $class = shift;
@@ -83,7 +81,7 @@ sub make_variant {
             return $class->$orig(@_);
         }
         my $args = [@_];
-        my $opts = $parse->($args);
+        my $opts = $class->_parse($args);
         $opts->{args} = $args;
         return $class->$orig($opts);
     };
