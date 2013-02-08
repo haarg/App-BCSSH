@@ -6,10 +6,12 @@ use App::BCSSH::Proxy;
 use App::BCSSH::Options;
 use App::BCSSH::Util qw(find_mods);
 use constant DEBUG => $ENV{BCSSH_DEBUG};
+use namespace::clean;
 
 with Options(
     permute => 0,
 );
+with 'App::BCSSH::Help';
 
 has agent_path => ( is => 'ro', default => quote_sub q[ $ENV{SSH_AUTH_SOCK} ] );
 has host => ( is => 'ro', lazy => 1, default => quote_sub q{ $_[0]->find_host($_[0]->args) } );
