@@ -157,7 +157,7 @@ App::BCSSH::Command::ssh - Connect to L<ssh|ssh> server with bcssh proxy running
 
     bcssh ssh --auth my.server.com
 
-    alias ssh='bcssh ssh --auth'
+    alias ssh='bcssh ssh --auth --'
 
 =head1 DESCRIPTION
 
