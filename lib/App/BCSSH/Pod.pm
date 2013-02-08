@@ -1,6 +1,5 @@
 package App::BCSSH::Pod;
-use strict;
-use warnings;
+use strictures 1;
 
 use Module::Reader qw(:all);
 

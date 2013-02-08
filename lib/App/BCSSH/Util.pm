@@ -1,9 +1,5 @@
 package App::BCSSH::Util;
-
-sub _getstash { \%{"$_[0]::"} }
-
-use strict;
-use warnings;
+use strictures 1;
 
 use Module::Runtime qw(require_module);
 

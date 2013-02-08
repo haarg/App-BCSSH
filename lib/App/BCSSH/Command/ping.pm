@@ -1,6 +1,6 @@
 package App::BCSSH::Command::ping;
-use strict;
-use warnings;
+use strictures 1;
+
 use App::BCSSH::Message;
 
 sub new { bless { agent => $ENV{SSH_AUTH_SOCK} }, $_[0] }

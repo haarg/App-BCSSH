@@ -1,6 +1,5 @@
 package App::BCSSH::Message;
-use strict;
-use warnings;
+use strictures 1;
 
 use Exporter 'import';
 use constant ();

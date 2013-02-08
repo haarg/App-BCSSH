@@ -1,6 +1,6 @@
 package App::BCSSH;
-use strict;
-use warnings;
+use strictures 1;
+
 our $VERSION = '0.001000';
 $VERSION = eval $VERSION;
 

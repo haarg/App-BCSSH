@@ -1,6 +1,5 @@
 package App::BCSSH::Command::commands;
-use strict;
-use warnings;
+use strictures 1;
 
 use App::BCSSH::Util qw(find_mods);
 use App::BCSSH::Pod;
