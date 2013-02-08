@@ -29,8 +29,8 @@ sub command_to_package {
 
 sub package_to_command {
     my $package = shift;
-    $package =~ s/::/-/g;
     $package =~ s/^App::BCSSH::Command:://;
+    $package =~ s/::/-/g;
     return $package;
 }
 
