@@ -5,22 +5,3 @@ use Distar;
 author 'haarg - Graham Knop (cpan:HAARG) <haarg@haarg.org>';
 
 manifest_include 'bin' => qr/.*/;
-
-{
-    no strict 'refs';
-    no warnings 'redefine';
-    my $post = \&{"MY::postamble"};
-    *{"MY::postamble"} = sub {
-        $post->() . <<'END'
-pack: bcssh
-bcssh: bin/bcssh $(TO_INST_PM)
-	maint/pack bin/bcssh > bcssh
-	chmod +x bcssh
-release-pack: bcssh
-	maint/update-build-branch $(VERSION) build bcssh
-END
-    }
-}
-
-
-
