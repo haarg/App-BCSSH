@@ -21,3 +21,14 @@ sub run {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Command::vi - Edit file on user's local machine
+
+=head1 SYNOPSIS
+
+    bcssh vi -- file.txt
+
+=cut

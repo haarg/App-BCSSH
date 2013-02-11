@@ -67,3 +67,11 @@ sub help_for_package {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+App::BCSSH::Command::help - Show documentation for bcssh commands
+
+=cut

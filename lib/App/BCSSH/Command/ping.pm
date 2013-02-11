@@ -12,3 +12,14 @@ sub run {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Command::ping - Check if a bcssh proxy is available
+
+=head1 SYNOPSIS
+
+    bcssh ping && alias vim='bcssh vi --'
+
+=cut
