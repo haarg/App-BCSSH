@@ -5,17 +5,28 @@ use File::Temp ();
 use File::Find;
 use File::Path;
 use File::Basename;
+use File::Copy;
 use Module::CoreList;
+use Config;
 use autodie qw(:all);
+use Pod::Strip;
 
 my ($in_file) = @ARGV;
 $in_file && -f $in_file or die "Input file must be specified!";
 
 $ENV{PERL_STRICTURES_EXTRA} = 0;
+# never pack these
 my ($exclude) = map { qr{$_} } join '|', qw(
     ^Sub::Name$
+    ^JSON::XS
     ^Class::XSAccessor
+    ^Variable::Magic$
+    ^Package::Stash::XS$
 );
+# these have optional XS components
+my @dual = ('List::MoreUtils', 'Params::Util');
+# only include traced files, not entire dist
+my @traceonly = ('Pod::Simple');
 
 my @modules;
 find({no_chdir => 1, wanted => sub {
@@ -30,24 +41,63 @@ find({no_chdir => 1, wanted => sub {
     local $ENV{PERL5LIB} = "lib:" . ($ENV{PERL5LIB}||'');
     system 'fatpack', 'trace', (map { "--use=$_" } @modules), $in_file;
 }
-my @trace = do {
+my @trace_in = do {
     open my $fh, '<', 'fatpacker.trace';
     <$fh>;
 };
-chomp @trace;
-@trace = grep {
-    my $mod = $_;
+chomp @trace_in;
+my @trace_extras;
+my @trace;
+for my $file (@trace_in) {
+    my $mod = $file;
     $mod =~ s/\.pm$//;
     $mod =~ s{/}{::}g;
-    ! ( $Module::CoreList::version{5.008008}{$mod} || $mod =~ $exclude || grep { $mod eq $_ } @modules )
-} @trace;
+    next
+        if $Module::CoreList::version{5.008008}{$mod} && $Module::CoreList::version{$]}{$mod};
+    next
+        if $mod =~ $exclude;
+    next
+        if grep { $mod eq $_ } @modules;
+
+    if (grep { $mod =~ /^$_(::|$)/ } @traceonly) {
+        push @trace_extras, $file;
+    }
+    else {
+        push @trace, $file;
+    }
+}
 
 my @packlists = `fatpack packlists-for @trace`;
 chomp @packlists;
 
 rmtree('fatlib');
 system 'fatpack', 'tree', @packlists;
+for my $mod (@dual) {
+    (my $path = $mod) =~ s{::}{/}g;
+    rmtree("fatlib/$Config{archname}/auto/$path");
+}
+find({no_chdir => 1, wanted => sub {
+    -f or return;
+    unlink $_ if /\.pod$/;
+}}, 'fatlib');
+for my $file (@trace_extras) {
+    my ($full_file) = grep { -f } map { "$_/$file" } @INC;
+    my $dest = "fatlib/$file";
+    mkpath(dirname($dest));
+    copy $full_file, $dest;
+}
 
+find({no_chdir => 1, wanted => sub {
+    -f or return;
+    /\.pm$/ or return;
+    my $file = $_;
+    open my $fh, '>', "$file.strip";
+    my $strip = Pod::Strip->new;
+    $strip->output_fh($fh);
+    $strip->parse_file($file);
+    close $fh;
+    rename "$file.strip", $file;
+}}, 'fatlib');
 
 my $content = "#!/usr/bin/env perl\n";
 $content .= `fatpack file`;
@@ -70,8 +120,10 @@ my $script = do {
 $script =~ s/^#!.*\n//;
 $content .= $script;
 
-rmtree('fatlib');
-unlink 'fatpacker.trace';
+unless ($ENV{FATPACK_NO_CLEANUP}) {
+    rmtree('fatlib');
+    unlink 'fatpacker.trace';
+}
 
 print $content;
 
