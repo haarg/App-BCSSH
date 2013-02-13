@@ -11,7 +11,7 @@ has 'wait' => (is => 'ro', coerce => sub { $_[0] ? 1 : 0 }, arg_spec => 'f');
 
 sub run {
     my $self = shift;
-    my @files = @_;
+    my @files = @{ $self->args };
     @files or die "At least one file must be specified!\n";
     for my $file (@files) {
         $file = File::Spec->rel2abs($file);

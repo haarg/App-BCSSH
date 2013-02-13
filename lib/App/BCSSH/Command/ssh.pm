@@ -7,7 +7,6 @@ use App::BCSSH::Options;
 use App::BCSSH::Util qw(find_mods);
 use JSON qw(encode_json decode_json);
 use constant DEBUG => $ENV{BCSSH_DEBUG};
-use namespace::clean;
 
 with Options(
     permute => 0,
@@ -72,7 +71,7 @@ sub _build_proxy_handlers {
                 return $send->(BCSSH_FAILURE);
             }
             my $handler_args = decode_json($args);
-            my @response = $command_handler->(@$args);
+            my @response = $command_handler->(@$handler_args);
             my $rmessage = @response ? encode_json(\@response) : '';
             $send->(BCSSH_SUCCESS, $rmessage);
         },
@@ -100,7 +99,7 @@ sub _build_proxy {
     my $self = shift;
     return App::BCSSH::Proxy->new(
         agent_path => $self->agent_path,
-        handlers => $self->handlers,
+        handlers => $self->proxy_handlers,
     );
 }
 
