@@ -10,7 +10,13 @@ use Moo::Role;
 use MooX::CaptainHook qw(on_application);
 
 has host => (is => 'ro', required => 1);
-requires 'message_type';
+has command => (is => 'lazy');
+
+sub _build_command {
+    my $class = ref shift;
+    $class =~ s/^\Q${\__PACKAGE__}:://;
+    return lc $class;
+}
 
 on_application { $handlers{$_} = 1 };
 

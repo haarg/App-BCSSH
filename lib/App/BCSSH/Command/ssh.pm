@@ -5,6 +5,7 @@ use App::BCSSH::Message;
 use App::BCSSH::Proxy;
 use App::BCSSH::Options;
 use App::BCSSH::Util qw(find_mods);
+use JSON qw(encode_json decode_json);
 use constant DEBUG => $ENV{BCSSH_DEBUG};
 use namespace::clean;
 
@@ -22,7 +23,9 @@ has auth_key => (
     default => quote_sub q[ join '', map { chr(32+int(rand(96))) } (1..20) ],
 );
 has proxy => ( is => 'lazy' );
-has handlers => ( is => 'lazy' );
+
+has proxy_handlers => ( is => 'lazy' );
+has command_handlers => ( is => 'lazy' );
 
 sub run {
     my $self = shift;
@@ -41,42 +44,56 @@ sub run {
     exit system('ssh', @$args);
 }
 
-sub _build_handlers {
+sub _build_proxy_handlers {
+    my $self = shift;
+    my $command_handlers = $self->command_handlers;
+
+    my $host = $self->host;
+    if ( !$host || $self->is_bcssh_agent($self->agent_path) ) {
+        return {};
+    }
+
+    my $auth_key = $self->auth && $self->auth_key;
+
+    my %handlers = (
+        (BCSSH_QUERY) => sub {
+            my ($send, $message) = @_;
+            $send->(BCSSH_SUCCESS);
+        },
+        (BCSSH_COMMAND) => sub {
+            my ($send, $message) = @_;
+
+            my ($command, $key, $args) = split /\|/, $message, 3;
+            if ($auth_key && ! $auth_key ne $key) {
+                return $send->(BCSSH_FAILURE);
+            }
+            my $command_handler = $command_handlers->{$command};
+            if (!$command_handler) {
+                return $send->(BCSSH_FAILURE);
+            }
+            my $handler_args = decode_json($args);
+            my @response = $command_handler->(@$args);
+            my $rmessage = @response ? encode_json(\@response) : '';
+            $send->(BCSSH_SUCCESS, $rmessage);
+        },
+    );
+
+    return \%handlers;
+}
+
+sub _build_command_handlers {
     my $self = shift;
     require App::BCSSH::Proxy::Handler;
     find_mods('App::BCSSH::Proxy::Handler', 1);
 
-    my $host = $self->host;
-
-    if ( !$host || $self->is_bcssh_agent($self->agent_path) ) {
-        my $fail = sub { $_[0]->(SSH_AGENT_FAILURE) };
-        return {
-            map { $_->message_type => $fail } App::BCSSH::Proxy::Handler->handlers
-        };
-    }
-
-    my $auth_key = $self->auth && $self->auth_key;
-    my %handlers;
-
+    my %command_handlers;
     for my $handmod ( App::BCSSH::Proxy::Handler->handlers ) {
         my $handler = $handmod->new(host => $self->host);
-        my %captures = (
-            '$handler' => \$handler,
-            $auth_key ? ( '$auth_key' => \$auth_key ) : (),
-        );
-        my $code = ($auth_key ? 'die if $auth_key ne ' : '') . q{splice @_, 1, 1;};
-        if (my $inline = quoted_from_sub($handler->can('handle'))) {
-            %captures = ( %captures, %{ $inline->[2] } )
-                if $inline->[2];
-            $code .= q{unshift @_, $handler;} . $inline->[1];
-        }
-        else {
-            $code .= q{$handler->handle(@_);};
-        }
-        $handlers{$handler->message_type}
-            = quote_sub($code, \%captures, { no_install => 1 });
+        $command_handlers{$handler->command} = sub {
+            $handler->handle(@_);
+        };
     }
-    return \%handlers;
+    return \%command_handlers;
 }
 
 sub _build_proxy {

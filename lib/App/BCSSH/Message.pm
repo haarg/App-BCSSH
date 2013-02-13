@@ -10,7 +10,6 @@ BEGIN {
         BCSSH_SUCCESS   => -41,
         BCSSH_FAILURE   => -42,
         BCSSH_COMMAND   => -43,
-        BCSSH_EDIT      => -44,
 
         SSH_AGENTC_REQUEST_RSA_IDENTITIES   => 1,
         SSH_AGENT_RSA_IDENTITIES_ANSWER     => 2,
@@ -27,7 +26,7 @@ BEGIN {
         SSH_COM_AGENT2_FAILURE              => 102,
     );
     our %EXPORT_TAGS = (message_types => [keys %constants]);
-    our @EXPORT_OK = (qw(make_response split_message join_message send_message), keys %constants);
+    our @EXPORT_OK = (qw(make_response send_message), keys %constants);
     our @EXPORT = @EXPORT_OK;
     $EXPORT_TAGS{all} = [@EXPORT_OK];
 
@@ -36,21 +35,12 @@ BEGIN {
 
 sub make_response {
     my $type = shift;
-    my $message = join_message(@_);
+    my $message = shift;
+    if (!defined $message) {
+        $message = '';
+    }
     my $full_message = pack('c', $type) . $message;
     return pack('N', length $full_message) . $full_message;
-}
-
-sub split_message {
-    my $message = shift;
-    my @parts = split /(?<!\\)\|/, $message;
-    s/\\(.)/$1/g for @parts;
-    return @parts;
-}
-
-sub join_message {
-    my @message = @_;
-    return join '|', @message;
 }
 
 sub send_message {
@@ -64,7 +54,7 @@ sub send_message {
     $agent->syswrite(make_response(@_));
     my ($type, $message) = read_message($agent);
     $agent->close;
-    return ($type, split_message($message));
+    return ($type, $message);
 }
 
 sub read_message {

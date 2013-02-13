@@ -86,14 +86,13 @@ sub read_message {
         delete $client->{message_length};
         if (my $handler = $self->handlers->{$type}) {
             my $socket = $client->{client};
-            my @message = split_message($message);
             my $send = sub {
-                my ($type, @message) = @_;
-                my $response = make_response($type, \@message);
+                my ($type, $out_message) = @_;
+                my $response = make_response($type, $out_message);
                 $socket->syswrite($response);
             };
             try {
-                $handler->($send, @message);
+                $handler->($send, $message);
             }
             catch {
                 $socket->syswrite(make_response(SSH_AGENT_FAILURE));

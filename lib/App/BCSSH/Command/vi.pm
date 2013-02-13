@@ -1,11 +1,11 @@
 package App::BCSSH::Command::vi;
 use Moo;
 use App::BCSSH::Options;
-with Options();
-with 'App::BCSSH::Client';
+use App::BCSSH::Client;
+with Options;
+with Client('vi');
 
 use File::Spec;
-use App::BCSSH::Message ':message_types';
 
 has 'wait' => (is => 'ro', coerce => sub { $_[0] ? 1 : 0 }, arg_spec => 'f');
 
@@ -16,8 +16,7 @@ sub run {
     for my $file (@files) {
         $file = File::Spec->rel2abs($file);
     }
-    my $result = $self->message(BCSSH_EDIT, $self->wait, @files);
-    return $result == BCSSH_SUCCESS;
+    $self->command({ wait => $self->wait, files => \@files });
 }
 
 1;
