@@ -13,8 +13,8 @@ on_application { $handlers{$_} = 1 };
 
 has host => (is => 'ro', required => 1);
 has command => (is => 'lazy');
-
-sub fork { 0 }
+has fork => (is => 'lazy');
+sub _build_fork { 0 };
 
 sub _build_command {
     my $class = ref shift;
