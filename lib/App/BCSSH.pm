@@ -16,11 +16,11 @@ sub new { bless { args => [@_[1..$#_]] }, $_[0] }
 sub run {
     my $self = shift;
     my @args = @{ $self->{args} };
+    $self->load_plugins("$ENV{HOME}/.config/bcssh");
     my $command = shift @args
         or die "Command required.\n" . $self->_commands_msg;
     $command =~ /^[a-z]+(?:-[a-z]+)*+$/
         or $self->invalid_command($command);
-    $self->load_plugins("$ENV{HOME}/.bcssh");
     return try {
         my $pack = command_to_package($command);
         require_module($pack);
