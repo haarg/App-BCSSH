@@ -4,7 +4,6 @@ use Package::Variant
     importing => ['Moo::Role'],
     subs => [ qw(has around before after with) ],
 ;
-use Sub::Quote;
 use Carp;
 use App::BCSSH::Options::Accessor as => 'OptAccessor';
 use MooX::CaptainHook qw(on_application);

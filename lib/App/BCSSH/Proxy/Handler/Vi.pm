@@ -1,7 +1,5 @@
 package App::BCSSH::Proxy::Handler::Vi;
 use Moo;
-use Sub::Quote;
-use App::BCSSH::Message;
 
 with 'App::BCSSH::Proxy::Handler';
 
