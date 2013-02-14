@@ -22,7 +22,7 @@ sub make_variant {
         );
     };
 
-    install 'command' => sub {
+    install command => sub {
         my ($self, @args) = @_;
         my $key = $self->auth_key || '';
         my $message = join '|', $command, $key, encode_json(\@args);
@@ -33,7 +33,7 @@ sub make_variant {
         if ($rtype != BCSSH_SUCCESS) {
             die "Error!";
         }
-        unless (defined $message && length $message) {
+        unless (defined $rmessage && length $rmessage) {
             return;
         }
         my $response = decode_json($rmessage);
