@@ -1,5 +1,6 @@
 package App::BCSSH::Message;
 use strictures 1;
+use Safe::Isa;
 
 use Exporter 'import';
 use constant ();
@@ -45,15 +46,15 @@ sub make_response {
 
 sub send_message {
     my $path = shift;
-    require IO::Socket::UNIX;
-
-    my $agent = IO::Socket::UNIX->new(
-        Peer => $path,
-    );
+    my $agent = $path->$_can('syswrite') ? $path : do {
+        require IO::Socket::UNIX;
+        IO::Socket::UNIX->new(
+            Peer => $path,
+        );
+    };
 
     $agent->syswrite(make_response(@_));
     my ($type, $message) = read_message($agent);
-    $agent->close;
     return ($type, $message);
 }
 

@@ -13,12 +13,20 @@ sub make_variant {
 
     has 'agent' => ( is => 'ro', default => sub { $ENV{SSH_AUTH_SOCK} } );
     has 'auth_key' => ( is => 'ro', default => sub { $ENV{LC_BCSSH_KEY} } );
+    has 'agent_socket' => ( is => 'lazy' );
+    install _build_agent_socket => sub {
+        my $self = shift;
+        require IO::Socket::UNIX;
+        IO::Socket::UNIX->new(
+            Peer => $self->agent,
+        );
+    };
 
     install 'command' => sub {
         my ($self, @args) = @_;
         my $key = $self->auth_key || '';
         my $message = join '|', $command, $key, encode_json(\@args);
-        my ($rtype, $rmessage) = send_message($self->agent, BCSSH_COMMAND, $message);
+        my ($rtype, $rmessage) = send_message($self->agent_socket, BCSSH_COMMAND, $message);
         if (defined $rtype && $rtype == BCSSH_FAILURE && $rmessage) {
             die $rmessage;
         }
