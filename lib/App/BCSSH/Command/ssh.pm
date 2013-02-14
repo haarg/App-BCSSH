@@ -5,7 +5,6 @@ use App::BCSSH::Message;
 use App::BCSSH::Proxy;
 use App::BCSSH::Options;
 use App::BCSSH::Util qw(find_mods);
-use JSON qw(encode_json decode_json);
 use constant DEBUG => $ENV{BCSSH_DEBUG};
 
 with Options(
@@ -70,10 +69,7 @@ sub _build_proxy_handlers {
             if (!$command_handler) {
                 return $send->(BCSSH_FAILURE);
             }
-            my $handler_args = decode_json($args);
-            my @response = $command_handler->(@$handler_args);
-            my $rmessage = @response ? encode_json(\@response) : '';
-            $send->(BCSSH_SUCCESS, $rmessage);
+            $command_handler->($send, $args);
         },
     );
 
@@ -88,9 +84,7 @@ sub _build_command_handlers {
     my %command_handlers;
     for my $handmod ( App::BCSSH::Proxy::Handler->handlers ) {
         my $handler = $handmod->new(host => $self->host);
-        $command_handlers{$handler->command} = sub {
-            $handler->handle(@_);
-        };
+        $command_handlers{$handler->command} = $handler->handler;
     }
     return \%command_handlers;
 }
