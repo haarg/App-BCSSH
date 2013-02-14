@@ -13,6 +13,7 @@ sub find_mods {
     if (defined &_fatpacker::modules) {
         push @mods, grep { /^$ns\::/ } _fatpacker::modules();
     }
+    push @mods, grep { /^$ns\::/ } map { my $m = $_; $m =~ s{/}{::}g; $m =~ s/\.pm$//; $m } keys %INC;
     if ($load) {
         for my $mod (@mods) { require_module($mod) }
     }
