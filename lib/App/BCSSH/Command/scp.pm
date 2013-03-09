@@ -1,0 +1,37 @@
+package App::BCSSH::Command::scp;
+use Moo;
+use App::BCSSH::Options;
+use App::BCSSH::Client;
+with Options;
+with Client('scp');
+
+use File::Spec;
+
+sub run {
+    my $self = shift;
+    my @files = @{ $self->args };
+    @files or die "At least one file must be specified!\n";
+    for my $file (@files) {
+        $file = File::Spec->rel2abs($file);
+    }
+    $self->command({ files => \@files });
+    my $sock = $self->agent_socket;
+    $| = 1;
+    while ($sock->sysread(my $buf, 8192)) {
+        print $buf;
+    }
+    return 1;
+}
+
+1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Command::vi - Edit file on user's local machine
+
+=head1 SYNOPSIS
+
+    bcssh vi -- file.txt
+
+=cut
