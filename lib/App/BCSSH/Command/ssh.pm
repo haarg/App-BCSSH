@@ -55,11 +55,11 @@ sub _build_proxy_handlers {
 
     my %handlers = (
         (BCSSH_QUERY) => sub {
-            my ($send, $message) = @_;
+            my ($message, $send, $socket) = @_;
             $send->(BCSSH_SUCCESS);
         },
         (BCSSH_COMMAND) => sub {
-            my ($send, $message) = @_;
+            my ($message, $send, $socket) = @_;
 
             my ($command, $key, $args) = split /\|/, $message, 3;
             if ($auth_key && ! $auth_key ne $key) {
@@ -69,7 +69,7 @@ sub _build_proxy_handlers {
             if (!$command_handler) {
                 return $send->(BCSSH_FAILURE);
             }
-            $command_handler->($send, $args);
+            $command_handler->($args, $send, $socket);
         },
     );
 

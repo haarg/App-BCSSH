@@ -22,22 +22,36 @@ sub _build_command {
     return lc $class;
 }
 
+sub handle_message {
+    my ($self, $args, $send, $socket) = @_;
+    if ($self->fork) {
+        if (CORE::fork) {
+            return;
+        }
+    }
+    my $handler_args = decode_json($args);
+    my $json_send = sub {
+        my @response = @_;
+        my $rmessage = @response ? encode_json(\@response) : '';
+        $send->(BCSSH_SUCCESS, $rmessage);
+    };
+    my @response = $self->handle(@$handler_args);
+    if (@response == 1 && eval { \&{$response[0]} }) {
+        $response[0]->($json_send, $socket);
+    }
+    else {
+        $json_send->(@response);
+    }
+    if ($self->fork) {
+        exit;
+    }
+}
+
 sub handler {
     my $self = shift;
     return sub {
-        my ($send, $args) = @_;
-        if ($self->fork) {
-            if (CORE::fork) {
-                return;
-            }
-        }
-        my $handler_args = decode_json($args);
-        my @response = $self->handle(@$handler_args);
-        my $rmessage = @response ? encode_json(\@response) : '';
-        $send->(BCSSH_SUCCESS, $rmessage);
-        if ($self->fork) {
-            exit;
-        }
+        my ($args, $send, $socket) = @_;
+        $self->handle_message($args, $send, $socket);
     }
 }
 

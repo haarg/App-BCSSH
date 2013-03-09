@@ -92,7 +92,7 @@ sub read_message {
                 $socket->syswrite($response);
             };
             try {
-                $handler->($send, $message);
+                $handler->($message, $send, $socket);
             }
             catch {
                 $socket->syswrite(make_response(SSH_AGENT_FAILURE));
