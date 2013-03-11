@@ -22,6 +22,8 @@ my ($exclude) = map { qr{$_} } join '|', qw(
     ^Class::XSAccessor
     ^Variable::Magic$
     ^Package::Stash::XS$
+    ^IO::Tty
+    ^IO::Pty$
 );
 # these have optional XS components
 my @dual = ('List::MoreUtils', 'Params::Util');
