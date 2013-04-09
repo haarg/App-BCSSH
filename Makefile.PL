@@ -27,6 +27,7 @@ WriteMakefile(
     'parent'            => 0,
     'Pod::Simple'       => 0,
     'Pod::Perldoc'      => 0,
+    'Browser::Open'     => 0,
   },
 
   META_MERGE => {
