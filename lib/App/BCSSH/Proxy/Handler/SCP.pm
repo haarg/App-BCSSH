@@ -13,34 +13,31 @@ has destination => (
     },
 );
 
-sub _build_fork { 1 }
-
 sub handle {
-    my ($self, $args) = @_;
+    my ($self, $send, $args) = @_;
     my $files = $args->{files};
     for my $file (@$files) {
         $file = $self->host.':'.$file;
     }
-    return sub {
-        my ($send, $socket) = @_;
-        $send->();
-        my @command = ('scp', '-r', '--', @$files, $self->destination);
-        if ($have_pty) {
-            my $pty = IO::Pty::Easy->new;
-            $pty->spawn(@command);
+    my $socket = $send->();
+    fork and return;
+    my @command = ('scp', '-r', '--', @$files, $self->destination);
+    if ($have_pty) {
+        my $pty = IO::Pty::Easy->new;
+        $pty->spawn(@command);
 
-            while ($pty->is_active) {
-                my $output = $pty->read;
-                last if defined($output) && $output eq '';
-                $socket->syswrite($output);
-            }
-            $pty->close;
+        while ($pty->is_active) {
+            my $output = $pty->read;
+            last if defined($output) && $output eq '';
+            $socket->syswrite($output);
         }
-        else {
-            system @command;
-        }
-        $socket->shutdown(2);
-    };
+        $pty->close;
+    }
+    else {
+        system @command;
+    }
+    $socket->shutdown(2);
+    exit;
 }
 
 1;

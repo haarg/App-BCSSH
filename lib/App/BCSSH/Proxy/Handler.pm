@@ -13,8 +13,6 @@ on_application { $handlers{$_} = 1 };
 
 has host => (is => 'ro', required => 1);
 has command => (is => 'lazy');
-has fork => (is => 'lazy');
-sub _build_fork { 0 };
 
 sub _build_command {
     my $class = ref shift;
@@ -24,27 +22,15 @@ sub _build_command {
 
 sub handle_message {
     my ($self, $args, $send, $socket) = @_;
-    if ($self->fork) {
-        if (CORE::fork) {
-            return;
-        }
-    }
-    my $handler_args = decode_json($args);
     my $json_send = sub {
         my @response = @_;
         my $rmessage = @response ? encode_json(\@response) : '';
         $send->(BCSSH_SUCCESS, $rmessage);
     };
-    my @response = $self->handle(@$handler_args);
-    if (@response == 1 && eval { \&{$response[0]} }) {
-        $response[0]->($json_send, $socket);
-    }
-    else {
-        $json_send->(@response);
-    }
-    if ($self->fork) {
-        exit;
-    }
+    my $handler_args = decode_json($args);
+    my @response = $self->handle($json_send, @$handler_args);
+    $json_send->(@response);
+    return;
 }
 
 sub handler {
