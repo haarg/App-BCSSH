@@ -72,7 +72,13 @@ App::BCSSH - Back channel SSH messaging
     client$ bcssh ssh host
     host$ bcssh vi file
 
+    # bashrc
+    alias ssh=bcssh ssh
     bcssh ping && alias vi=bcssh vi
+
+    # help
+    bcssh commands
+    bcssh help ssh
 
 =head1 DESCRIPTION
 

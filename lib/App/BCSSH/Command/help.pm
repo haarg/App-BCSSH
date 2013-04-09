@@ -18,7 +18,7 @@ sub run {
         $self->help_for_package(command_to_package($command));
     }
     else {
-        print App::BCSSH::Command::commands->new->commands_message
+        $self->help_for_package('App::BCSSH');
     }
 }
 
