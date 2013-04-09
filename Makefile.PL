@@ -32,7 +32,7 @@ WriteMakefile(
 
   META_MERGE => {
     requires => {
-        perl => '5.8',
+        perl => '5.8.1',
     },
   },
 );
