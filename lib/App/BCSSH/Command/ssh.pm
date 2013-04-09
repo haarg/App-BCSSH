@@ -5,7 +5,7 @@ use App::BCSSH::Message;
 use App::BCSSH::Proxy;
 use App::BCSSH::Options;
 use App::BCSSH::Util qw(find_mods rc_dir);
-use JSON ();
+use JSON qw(decode_json);
 use constant DEBUG => $ENV{BCSSH_DEBUG};
 
 with Options(

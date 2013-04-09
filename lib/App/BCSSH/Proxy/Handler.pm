@@ -16,7 +16,7 @@ on_application {
 has host => (is => 'ro', required => 1);
 
 sub command {
-    my $class = ref shift;
+    my $class = ref $_[0] || $_[0];
     $class =~ s/^\Q${\__PACKAGE__}:://;
     return lc $class;
 }
