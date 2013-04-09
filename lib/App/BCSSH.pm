@@ -80,6 +80,10 @@ App::BCSSH - Back channel SSH messaging
     bcssh commands
     bcssh help ssh
 
+=head1 BETA RELEASE
+
+This is a beta release and there is no guarantee the API will not change.
+
 =head1 DESCRIPTION
 
 This module enables commands on run on a server to be forwarded
