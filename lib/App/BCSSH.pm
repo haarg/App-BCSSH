@@ -6,7 +6,7 @@ $VERSION = eval $VERSION;
 
 use Try::Tiny;
 use Module::Runtime qw(require_module);
-use App::BCSSH::Util qw(command_to_package);
+use App::BCSSH::Util qw(command_to_package rc_dir);
 use Module::Find ();
 
 sub run_script { exit($_[0]->new(@ARGV)->run ? 0 : 1) }
@@ -16,7 +16,7 @@ sub new { bless { args => [@_[1..$#_]] }, $_[0] }
 sub run {
     my $self = shift;
     my @args = @{ $self->{args} };
-    $self->load_plugins("$ENV{HOME}/.config/bcssh");
+    $self->load_plugins(rc_dir . "/bcssh");
     my $command = shift @args
         or die "Command required.\n" . $self->_commands_msg;
     $command =~ /^[a-z]+(?:-[a-z]+)*+$/

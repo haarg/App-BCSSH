@@ -4,7 +4,7 @@ use strictures 1;
 use Module::Runtime qw(require_module);
 
 use base 'Exporter';
-our @EXPORT_OK = qw(find_mods command_to_package package_to_command);
+our @EXPORT_OK = qw(find_mods command_to_package package_to_command rc_dir);
 
 sub find_mods {
     my ($ns, $load) = @_;
@@ -33,6 +33,11 @@ sub package_to_command {
     $package =~ s/^App::BCSSH::Command:://;
     $package =~ s/::/-/g;
     return $package;
+}
+
+sub rc_dir {
+    my $config_base = $ENV{XDG_CONFIG_HOME} || "$ENV{HOME}/.config";
+    return "$config_base/bcssh";
 }
 
 1;
