@@ -1,4 +1,4 @@
-package App::BCSSH::Proxy::Handler;
+package App::BCSSH::Handler;
 use Moo::Role;
 use JSON qw(encode_json decode_json);
 use App::BCSSH::Message;

@@ -1,9 +1,9 @@
-package App::BCSSH::Proxy::Handler::SCP;
+package App::BCSSH::Handler::SCP;
 use Moo;
 my $have_pty;
 BEGIN { eval {require IO::Pty::Easy; $have_pty = 1} }
 
-with 'App::BCSSH::Proxy::Handler';
+with 'App::BCSSH::Handler';
 
 has destination => (
     is => 'ro',

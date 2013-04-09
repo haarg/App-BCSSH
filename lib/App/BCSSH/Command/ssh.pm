@@ -91,9 +91,9 @@ sub _build_command_handlers {
     my $config = $self->config;
     my %command_handlers;
 
-    require App::BCSSH::Proxy::Handler;
-    find_mods('App::BCSSH::Proxy::Handler', 1);
-    my %handlers = App::BCSSH::Proxy::Handler->handlers;
+    require App::BCSSH::Handler;
+    find_mods('App::BCSSH::Handler', 1);
+    my %handlers = App::BCSSH::Handler->handlers;
 
     for my $command ( keys %handlers ) {
         my $handler = $handlers{$command};

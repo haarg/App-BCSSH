@@ -1,7 +1,7 @@
-package App::BCSSH::Proxy::Handler::Vi;
+package App::BCSSH::Handler::Vi;
 use Moo;
 
-with 'App::BCSSH::Proxy::Handler';
+with 'App::BCSSH::Handler';
 
 has gvim => (is => 'ro', default => sub { 'gvim' });
 

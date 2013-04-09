@@ -1,8 +1,8 @@
-package App::BCSSH::Proxy::Handler::Browse;
+package App::BCSSH::Handler::Browse;
 use Moo;
 use Browser::Open qw(open_browser);
 
-with 'App::BCSSH::Proxy::Handler';
+with 'App::BCSSH::Handler';
 
 has browser => (is => 'ro');
 has browse => (is => 'lazy', init_arg => undef);
