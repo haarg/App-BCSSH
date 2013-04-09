@@ -16,7 +16,7 @@ $in_file && -f $in_file or die "Input file must be specified!";
 
 $ENV{PERL_STRICTURES_EXTRA} = 0;
 # never pack these
-my ($exclude) = map { qr{$_} } join '|', qw(
+my @exclude = qw(
     ^Sub::Name$
     ^JSON::XS
     ^Class::XSAccessor
@@ -26,9 +26,17 @@ my ($exclude) = map { qr{$_} } join '|', qw(
     ^IO::Pty$
 );
 # these have optional XS components
-my @dual = ('List::MoreUtils', 'Params::Util');
+my @dual = qw(
+  List::MoreUtils
+  Params::Util
+);
 # only include traced files, not entire dist
-my @traceonly = ('Pod::Simple');
+my @traceonly = qw(
+  Pod::Simple
+  Pod::Perldoc
+);
+
+my ($exclude) = map { qr{$_} } join '|', map { "^$_(?:\$|::)" } @exclude;
 
 my @modules;
 find({no_chdir => 1, wanted => sub {
@@ -54,12 +62,14 @@ for my $file (@trace_in) {
     my $mod = $file;
     $mod =~ s/\.pm$//;
     $mod =~ s{/}{::}g;
-    next
-        if $Module::CoreList::version{5.008008}{$mod} && $Module::CoreList::version{$]}{$mod};
+
     next
         if $mod =~ $exclude;
     next
         if grep { $mod eq $_ } @modules;
+    my $first_release = Module::CoreList->first_release($mod);
+    next
+        if defined $first_release && $first_release <= 5.008001 && !Module::CoreList->removed_from($mod);
 
     if (grep { $mod =~ /^$_(::|$)/ } @traceonly) {
         push @trace_extras, $file;
