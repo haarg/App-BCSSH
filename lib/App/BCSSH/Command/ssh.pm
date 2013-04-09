@@ -4,7 +4,8 @@ use Sub::Quote;
 use App::BCSSH::Message;
 use App::BCSSH::Proxy;
 use App::BCSSH::Options;
-use App::BCSSH::Util qw(find_mods);
+use App::BCSSH::Util qw(find_mods rc_dir);
+use JSON ();
 use constant DEBUG => $ENV{BCSSH_DEBUG};
 
 with Options(
@@ -24,6 +25,15 @@ has proxy => ( is => 'lazy' );
 
 has proxy_handlers => ( is => 'lazy' );
 has command_handlers => ( is => 'lazy' );
+has config => ( is => 'lazy' );
+
+sub _build_config {
+    my $self = shift;
+    open my $fh, '<', rc_dir . '/config'
+        or return {};
+    my $raw = do { local $/; <$fh> };
+    return decode_json($raw);
+}
 
 sub run {
     my $self = shift;
@@ -81,9 +91,11 @@ sub _build_command_handlers {
     require App::BCSSH::Proxy::Handler;
     find_mods('App::BCSSH::Proxy::Handler', 1);
 
+    my $handler_config = $self->config->{handlers};
     my %command_handlers;
     for my $handmod ( App::BCSSH::Proxy::Handler->handlers ) {
-        my $handler = $handmod->new(host => $self->host);
+        my $config = $handler_config->{$handmod} || {};
+        my $handler = $handmod->new(%$config, host => $self->host);
         $command_handlers{$handler->command} = $handler->handler;
     }
     return \%command_handlers;
