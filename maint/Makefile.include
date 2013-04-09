@@ -1,5 +1,5 @@
 pack: bcssh
-bcssh: bin/bcssh $(TO_INST_PM)
+bcssh: bin/bcssh $(TO_INST_PM) maint/pack
 	maint/pack bin/bcssh > bcssh
 	chmod +x bcssh
 release-pack: bcssh

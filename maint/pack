@@ -10,9 +10,11 @@ use Module::CoreList;
 use Config;
 use autodie qw(:all);
 use Pod::Strip;
+use JSON;
 
 my ($in_file) = @ARGV;
 $in_file && -f $in_file or die "Input file must be specified!";
+my $mymeta = decode_json(do { open my $fh, '<', 'MYMETA.json'; local $/; +<$fh> });
 
 $ENV{PERL_STRICTURES_EXTRA} = 0;
 # never pack these
@@ -27,13 +29,13 @@ my @exclude = qw(
 );
 # these have optional XS components
 my @dual = qw(
-  List::MoreUtils
-  Params::Util
+    List::MoreUtils
+    Params::Util
 );
 # only include traced files, not entire dist
 my @traceonly = qw(
-  Pod::Simple
-  Pod::Perldoc
+    Pod::Simple
+    Pod::Perldoc
 );
 
 my ($exclude) = map { qr{$_} } join '|', map { "^$_(?:\$|::)" } @exclude;
@@ -67,9 +69,16 @@ for my $file (@trace_in) {
         if $mod =~ $exclude;
     next
         if grep { $mod eq $_ } @modules;
-    my $first_release = Module::CoreList->first_release($mod);
-    next
-        if defined $first_release && $first_release <= 5.008001 && !Module::CoreList->removed_from($mod);
+
+    if (my $first_release = Module::CoreList->first_release($mod)) {
+        if ($first_release <= 5.008001 && !Module::CoreList->removed_from($mod)) {
+            my $version = eval($Module::CoreList::version{5.008001}{$mod} || 0);
+            my $required = eval($mymeta->{prereqs}{runtime}{requires}{$mod} || 0);
+            if ($required <= $version) {
+                next;
+            }
+        }
+    }
 
     if (grep { $mod =~ /^$_(::|$)/ } @traceonly) {
         push @trace_extras, $file;
