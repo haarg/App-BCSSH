@@ -7,13 +7,19 @@ use File::Spec;
 use Pod::Perldoc;
 use Pod::Perldoc::ToMan;
 use App::BCSSH::Util qw(command_to_package package_to_command);
+use App::BCSSH::Command::commands;
 
 sub new { bless { command => $_[1] }, $_[0] }
 
 sub run {
     my $self = shift;
     my $command = $self->{command};
-    $self->help_for_package(command_to_package($command));
+    if ($command) {
+        $self->help_for_package(command_to_package($command));
+    }
+    else {
+        print App::BCSSH::Command::commands->new->commands_message
+    }
 }
 
 sub help_for_package {
@@ -73,5 +79,9 @@ __END__
 =head1 NAME
 
 App::BCSSH::Command::help - Show documentation for bcssh commands
+
+=head1 SYNOPSIS
+
+    bcssh help ssh
 
 =cut

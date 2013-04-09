@@ -28,10 +28,10 @@ __END__
 
 =head1 NAME
 
-App::BCSSH::Command::vi - Edit file on user's local machine
+App::BCSSH::Command::scp - Copy files to user's local machine
 
 =head1 SYNOPSIS
 
-    bcssh vi -- file.txt
+    bcssh scp -- file.txt
 
 =cut

@@ -40,4 +40,8 @@ __END__
 
 App::BCSSH::Command::commands - list commands available to bcssh
 
+=head1 SYNOPSIS
+
+    bcssh commands
+
 =cut
