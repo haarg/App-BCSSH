@@ -9,7 +9,13 @@ has browse => (is => 'lazy', init_arg => undef);
 sub _build_browse {
     my $self = shift;
     my $browser = $self->browser;
-    $browser ? sub { system $browser, @_ } : \&open_browser;
+    if ($browser) {
+        my @browser = ref $browser ? @$browser : $browser;
+        return sub { system @browser, @_ };
+    }
+    else {
+        return \&open_browser;
+    }
 }
 
 sub handle {
