@@ -88,15 +88,18 @@ sub _build_proxy_handlers {
 
 sub _build_command_handlers {
     my $self = shift;
+    my $config = $self->config;
+    my %command_handlers;
+
     require App::BCSSH::Proxy::Handler;
     find_mods('App::BCSSH::Proxy::Handler', 1);
+    my %handlers = App::BCSSH::Proxy::Handler->handlers;
 
-    my $handler_config = $self->config->{handlers};
-    my %command_handlers;
-    for my $handmod ( App::BCSSH::Proxy::Handler->handlers ) {
-        my $config = $handler_config->{$handmod} || {};
-        my $handler = $handmod->new(%$config, host => $self->host);
-        $command_handlers{$handler->command} = $handler->handler;
+    for my $command ( keys %handlers ) {
+        my $handler = $handlers{$command};
+        my $handler_config = $config->{$command} || {};
+        $command_handlers{$command}
+          = $handler->new(%$handler_config, host => $self->host)->handler;
     }
     return \%command_handlers;
 }

@@ -6,15 +6,16 @@ use MooX::CaptainHook qw(on_application);
 
 my %handlers;
 sub handlers {
-    return sort keys %handlers;
+    return %handlers;
 }
-
-on_application { $handlers{$_} = 1 };
+on_application {
+    my $class = $_;
+    $handlers{$class->command} = $class;
+};
 
 has host => (is => 'ro', required => 1);
-has command => (is => 'lazy');
 
-sub _build_command {
+sub command {
     my $class = ref shift;
     $class =~ s/^\Q${\__PACKAGE__}:://;
     return lc $class;
