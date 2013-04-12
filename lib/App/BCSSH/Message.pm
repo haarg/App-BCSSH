@@ -81,3 +81,15 @@ sub ping {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Message - Functions to send and read ssh-agent messages
+
+=head1 SYNOPSIS
+
+    use App::BCSSH::Message;
+    my ($type, $message) = send_message('/agent/socket/path', BCSSH_COMMAND, 'command');
+
+=cut

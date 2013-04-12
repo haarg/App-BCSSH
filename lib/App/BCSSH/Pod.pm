@@ -110,3 +110,15 @@ sub _pull_OPTIONS {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Pod - Read Pod abstract, synopsis, and options from loadable modules
+
+=head1 SYNOPSIS
+
+    my $parsed = App::BCSSH::Pod->parse($package);
+    my ($abstract, $synopsis, $options) = @{$parsed}{qw(abstract synopsis options)};
+
+=cut

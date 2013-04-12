@@ -109,3 +109,20 @@ sub default_arg_error {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Options - Options parser for command objects
+
+=head1 SYNOPSIS
+
+    package App::BCSSH::Command::mycommand;
+    use App::BCSSH::Options;
+    with Options permute => 1;
+
+    has myoption => ( is => 'ro', arg_spec => 'myoption' );
+
+    $ bcssh mycommand --myoption
+
+=cut

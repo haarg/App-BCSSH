@@ -41,3 +41,21 @@ sub command {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Client - Handler client role
+
+=head1 SYNOPSIS
+
+    package App::BCSSH::Command::mycommand;
+    use Moo;
+    with 'App::BCSSH::Client';
+
+    sub run {
+        ...;
+        $self->command({ arg => 1});
+    }
+
+=cut

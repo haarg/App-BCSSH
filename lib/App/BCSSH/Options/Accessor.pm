@@ -25,3 +25,18 @@ sub make_variant {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Options::Accessor - Role for accessors with option parsing
+
+=head1 SYNOPSIS
+
+    use App::BCSSH::Options::Accessor;
+    with Accessor(sub {
+        my ($into, $attr, $arg_spec) = @_
+        # handle accessor creation
+    });
+
+=cut

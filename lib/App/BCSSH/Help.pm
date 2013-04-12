@@ -42,3 +42,19 @@ around run => sub {
 };
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Help - Role to provide -h and --help options
+
+=head1 SYNOPSIS
+
+    package App::BCSSH::Command::mycommand;
+    use App::BCSSH::Options;
+    with Options;
+    with 'App::BCSSH::Help';
+
+    $ bcssh mycommand --help
+
+=cut

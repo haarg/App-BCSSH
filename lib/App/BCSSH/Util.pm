@@ -41,4 +41,14 @@ sub rc_dir {
 }
 
 1;
+__END__
 
+=head1 NAME
+
+App::BCSSH::Util - Utility functions for App::BCSSH
+
+=head1 SYNOPSIS
+
+    use App::BCSSH::Util qw(find_mods command_to_package package_to_command rc_dir);
+
+=cut

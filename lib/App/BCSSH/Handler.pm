@@ -43,3 +43,18 @@ sub handler {
 }
 
 1;
+__END__
+
+=head1 NAME
+
+App::BCSSH::Handler - Role for command handlers
+
+=head1 SYNOPSIS
+
+    with 'App::BCSSH::Handler';
+    sub handle {
+        my ($self, $json_send, @args) = @_;
+        my $socket = $json_send->(BCSSH_SUCCESS);
+    }
+
+=cut
