@@ -27,10 +27,10 @@ sub handle_message {
         my @response = @_;
         my $rmessage = @response ? encode_json(\@response) : '';
         $send->(BCSSH_SUCCESS, $rmessage);
+        return $socket;
     };
     my $handler_args = decode_json($args);
-    my @response = $self->handle($json_send, @$handler_args);
-    $json_send->(@response);
+    $self->handle($json_send, @$handler_args);
     return;
 }
 
