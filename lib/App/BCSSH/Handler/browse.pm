@@ -1,4 +1,4 @@
-package App::BCSSH::Handler::Browse;
+package App::BCSSH::Handler::browse;
 use Moo;
 use Browser::Open qw(open_browser);
 

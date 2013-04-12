@@ -1,4 +1,4 @@
-package App::BCSSH::Handler::SCP;
+package App::BCSSH::Handler::scp;
 use Moo;
 my $have_pty;
 BEGIN { eval {require IO::Pty::Easy; $have_pty = 1} }

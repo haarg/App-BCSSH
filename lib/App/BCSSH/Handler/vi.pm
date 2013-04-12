@@ -1,4 +1,4 @@
-package App::BCSSH::Handler::Vi;
+package App::BCSSH::Handler::vi;
 use Moo;
 
 with 'App::BCSSH::Handler';
