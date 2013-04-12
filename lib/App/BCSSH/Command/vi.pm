@@ -1,9 +1,8 @@
 package App::BCSSH::Command::vi;
 use Moo;
 use App::BCSSH::Options;
-use App::BCSSH::Client;
 with Options;
-with Client('vi');
+with 'App::BCSSH::Client';
 
 use File::Spec;
 

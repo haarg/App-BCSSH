@@ -1,9 +1,8 @@
 package App::BCSSH::Command::scp;
 use Moo;
 use App::BCSSH::Options;
-use App::BCSSH::Client;
 with Options;
-with Client('scp');
+with 'App::BCSSH::Client';
 
 use File::Spec;
 
