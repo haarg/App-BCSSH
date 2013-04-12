@@ -16,7 +16,7 @@ sub new { bless { args => [@_[1..$#_]] }, $_[0] }
 sub run {
     my $self = shift;
     my @args = @{ $self->{args} };
-    $self->load_plugins(rc_dir . "/bcssh");
+    $self->load_plugins(rc_dir);
     my $command = shift @args
         or die "Command required.\n" . $self->_commands_msg;
     $command =~ /^[a-z]+(?:-[a-z]+)*+$/
