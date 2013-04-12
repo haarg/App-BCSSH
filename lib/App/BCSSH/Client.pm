@@ -7,6 +7,12 @@ has 'agent' => ( is => 'ro', default => sub { $ENV{SSH_AUTH_SOCK} } );
 has 'auth_key' => ( is => 'ro', default => sub { $ENV{LC_BCSSH_KEY} } );
 has 'agent_socket' => ( is => 'lazy' );
 
+sub BUILD {
+    if (! $ENV{SSH_CONNECTION}) {
+        die "No SSH connection!\n";
+    }
+}
+
 sub _build_agent_socket {
     my $self = shift;
     require IO::Socket::UNIX;
