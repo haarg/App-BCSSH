@@ -13,7 +13,7 @@ has _temp_dir   => (is => 'lazy', init_arg => undef);
 sub _build__temp_dir {
     my $self = shift;
     my $old_mask = umask($self->umask);
-    my $dir = File::Temp->newdir;
+    my $dir = File::Temp->newdir(TMPDIR => 1);
     umask($old_mask);
     return $dir;
 }
