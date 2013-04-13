@@ -1,7 +1,7 @@
 package App::BCSSH::Pod;
 use strictures 1;
 
-use parent qw(Pod::Simple::PullParser Pod::Simple::Text);
+use base qw(Pod::Simple::PullParser Pod::Simple::Text);
 
 use Module::Reader qw(:all);
 

@@ -18,16 +18,16 @@ WriteMakefile(
     'Module::Runtime'   => 0,
     'Try::Tiny'         => 0,
     'Module::Find'      => 0,
-    'File::Temp'        => 0,
+    'File::Temp'        => 0.19,
     'IO::Select'        => 0,
     'IO::Socket::UNIX'  => 0,
     'strictures'        => 0,
     'Module::Reader'    => 0,
     'MooX::CaptainHook' => 0,
-    'parent'            => 0,
     'Pod::Simple'       => 0,
     'Pod::Perldoc'      => 0,
     'Browser::Open'     => 0,
+    'Safe::Isa'         => 0,
   },
 
   META_MERGE => {
