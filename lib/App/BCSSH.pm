@@ -1,7 +1,7 @@
 package App::BCSSH;
 use strictures 1;
 
-our $VERSION = '0.001000';
+our $VERSION = '0.002000';
 $VERSION = eval $VERSION;
 
 use Try::Tiny;
