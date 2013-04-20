@@ -21,13 +21,14 @@ WriteMakefile(
     'File::Temp'        => 0.19,
     'IO::Select'        => 0,
     'IO::Socket::UNIX'  => 0,
-    'strictures'        => 0,
+    'strictures'        => 1,
     'Module::Reader'    => 0,
     'MooX::CaptainHook' => 0,
     'Pod::Simple'       => 0,
     'Pod::Perldoc'      => 0,
     'Browser::Open'     => 0,
     'Safe::Isa'         => 0,
+    'JSON'              => 2,
   },
 
   META_MERGE => {
