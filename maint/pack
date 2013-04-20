@@ -11,6 +11,7 @@ use Config;
 use autodie qw(:all);
 use Pod::Strip;
 use JSON;
+use version ();
 
 my ($in_file) = @ARGV;
 $in_file && -f $in_file or die "Input file must be specified!";
@@ -58,6 +59,10 @@ my @trace_in = do {
     <$fh>;
 };
 chomp @trace_in;
+
+my $prereqs = $mymeta->{prereqs}{runtime}{requires};
+my $perl_version = version->parse($prereqs->{perl})->numify;
+warn $perl_version;
 my @trace_extras;
 my @trace;
 for my $file (@trace_in) {
@@ -71,9 +76,9 @@ for my $file (@trace_in) {
         if grep { $mod eq $_ } @modules;
 
     if (my $first_release = Module::CoreList->first_release($mod)) {
-        if ($first_release <= 5.008001 && !Module::CoreList->removed_from($mod)) {
-            my $version = eval($Module::CoreList::version{5.008001}{$mod} || 0);
-            my $required = eval($mymeta->{prereqs}{runtime}{requires}{$mod} || 0);
+        if ($first_release <= $perl_version && !Module::CoreList->removed_from($mod)) {
+            my $version = eval($Module::CoreList::version{$perl_version}{$mod} || 0);
+            my $required = eval($prereqs->{$mod} || 0);
             if ($required <= $version) {
                 next;
             }
