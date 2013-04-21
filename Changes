@@ -1,3 +1,5 @@
+ - Fixed prerequisites
+
 0.002000 - 2013-04-14
  - added App::BCSSH::Inline to make plugins easier to write
  - better error message when there is no ssh connection
