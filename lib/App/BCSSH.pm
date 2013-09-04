@@ -19,7 +19,7 @@ sub run {
     $self->load_plugins(rc_dir);
     my $command = shift @args
         or die "Command required.\n" . $self->_commands_msg;
-    $command =~ /^[a-z]+(?:-[a-z]+)+$/
+    $command =~ /^[a-z]+(?:-[a-z]+)*$/
         or $self->invalid_command($command);
     return try {
         my $pack = command_to_package($command);
