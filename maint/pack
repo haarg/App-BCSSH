@@ -13,7 +13,7 @@ use Pod::Strip;
 use JSON;
 use version ();
 
-my ($in_file) = @ARGV;
+my ($in_file, $out_file) = @ARGV;
 $in_file && -f $in_file or die "Input file must be specified!";
 my $mymeta = decode_json(do { open my $fh, '<', 'MYMETA.json'; local $/; +<$fh> });
 
@@ -62,7 +62,6 @@ chomp @trace_in;
 
 my $prereqs = $mymeta->{prereqs}{runtime}{requires};
 my $perl_version = version->parse($prereqs->{perl})->numify;
-warn $perl_version;
 my @trace_extras;
 my @trace;
 for my $file (@trace_in) {
@@ -151,5 +150,7 @@ unless ($ENV{FATPACK_NO_CLEANUP}) {
     unlink 'fatpacker.trace';
 }
 
-print $content;
+open my $out, '>', $out_file;
+print { $out } $content;
+close $out;
 
