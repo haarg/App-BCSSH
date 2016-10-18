@@ -1,25 +1,16 @@
 package App::BCSSH::Util;
 use strictures 1;
 
-use Module::Runtime qw(require_module);
-
 use base 'Exporter';
 our @EXPORT_OK = qw(find_mods command_to_package package_to_command rc_dir);
 
 sub find_mods {
     my ($ns, $load) = @_;
-    require Module::Find;
-    my @mods = Module::Find::findallmod($ns);
-    if (defined &_fatpacker::modules) {
-        push @mods, grep { /^$ns\::/ } _fatpacker::modules();
-    }
-    push @mods, grep { /^$ns\::/ } map { my $m = $_; $m =~ s{/}{::}g; $m =~ s/\.pm$//; $m } keys %INC;
-    if ($load) {
-        for my $mod (@mods) { require_module($mod) }
-    }
-    my %mods;
-    @mods{@mods} = ();
-    return sort keys %mods;
+    require Module::Pluggable::Object;
+    return Module::Pluggable::Object->new(
+      search_path => $ns,
+      require => $load,
+    )->plugins;
 }
 
 sub command_to_package {
